@@ -16,9 +16,6 @@
                     placeholder="Nhập bình luận ..." name="content">
                     <input name="commentable_id" value="{{ $commentable_id }}" hidden>
                     <input name="commentable_type" value="{{ $commentable_type }}" hidden>
-                    @isset($comment_type)
-                    <input name="comment_type" value="{!! $comment_type !!}" hidden>
-                    @endisset
                 </div>
             </div>
             <div class="d-flex justify-content-end">

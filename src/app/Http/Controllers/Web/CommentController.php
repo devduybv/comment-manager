@@ -33,12 +33,9 @@ class CommentController extends BaseController {
             'content'          => $request->input('content'),
         ]);
 
-        $comment_type = !$request['comment_type'] ? $request['commentable_type'] : $request['comment_type'];
-
         $dataCount = [
             'commentable_id'   => $request->input('commentable_id'),
-            'commentable_type' => $request->input('commentable_type'),
-            'comment_type'     => $comment_type,
+            'commentable_type' => $request->input('commentable_type')
         ];
 
         $this->action->addComment($dataCount);

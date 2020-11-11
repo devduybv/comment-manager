@@ -13,7 +13,6 @@ class CommentCountTransformer extends TransformerAbstract
             'id'               => (int) $model->id,
             'commentable_id'   => (int) $model->commentable_id,
             'commentable_type' => $model->commentable_type,
-            'comment_type'     => $model->comment_type,
             'count'            => $model->count,
             'timestamps'       => [
                 'created_at' => $model->created_at,

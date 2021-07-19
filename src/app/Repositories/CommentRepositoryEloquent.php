@@ -41,7 +41,7 @@ class CommentRepositoryEloquent extends BaseRepository implements CommentReposit
             throw new NotFoundException("Comment");
         }
 
-        $result = $this->whereIn("id", $request->id)->update(['status' => $data['status']]);
+        $result = $this->model->whereIn("id", $request->id)->update(['status' => $data['status']]);
 
         return $result;
     }

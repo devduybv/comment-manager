@@ -33,6 +33,7 @@ class TestCase extends OrchestraTestCase
         parent::setUp();
         $this->withFactories(__DIR__ . '/Stubs/Factories');
         $this->loadMigrationsFrom(__DIR__ . '/../src/database/migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/Stubs/migrations');
     }
 
     /**
@@ -104,7 +105,7 @@ class TestCase extends OrchestraTestCase
         
             'auth_middleware' => [
                 'admin'    => [
-                    'middleware' => '',
+                    'middleware' => 'auth',
                     'except'     => [],
                 ],
                 'frontend' => [

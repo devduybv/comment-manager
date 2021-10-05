@@ -2,6 +2,7 @@
 
 namespace VCComponent\Laravel\Comment\Test\Features\Api\Frontend;
 
+use Illuminate\Foundation\Auth\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use VCComponent\Laravel\Comment\Entities\Comment;
 use VCComponent\Laravel\Comment\Test\TestCase;
@@ -12,6 +13,8 @@ class CommentControllerTest extends TestCase {
 
     /** @test */
     public function can_get_pagianted_comments() {
+        $user = factory(User::class)->create();
+
         $comments = factory(Comment::class, 5)->state('post')->create();
         $comments = $comments->map(function ($comment) {
             unset($comment['created_at']);
@@ -22,7 +25,7 @@ class CommentControllerTest extends TestCase {
         $listIds = array_column($comments, 'id');
         array_multisort($listIds, SORT_DESC, $comments);
 
-        $response = $this->call('GET', 'api/comments');
+        $response = $this->actingAs($user)->call('GET', 'api/comments');
 
         $response->assertStatus(200);
         $response->assertJson([
@@ -40,6 +43,8 @@ class CommentControllerTest extends TestCase {
 
     /** @test */
     public function can_get_pagianted_comments_with_constraints() {
+        $user = factory(User::class)->create();
+
         $comments = factory(Comment::class, 5)->state('post')->create();
         $name_constraints = $comments[0]->name;
         $email_constraints = $comments[0]->email;
@@ -51,7 +56,7 @@ class CommentControllerTest extends TestCase {
 
         $constraints = '{"name":"'.$name_constraints.'", "email":"'.$email_constraints.'"}';
 
-        $response = $this->call('GET', 'api/comments?constraints='.$constraints);
+        $response = $this->actingAs($user)->call('GET', 'api/comments?constraints='.$constraints);
 
         $response->assertStatus(200);
         $response->assertJson([
@@ -70,6 +75,8 @@ class CommentControllerTest extends TestCase {
     /** @test */
     public function can_get_panigated_comments_with_search()
     {
+        $user = factory(User::class)->create();
+
         $comments = factory(Comment::class, 5)->state('post')->create();
 
         $comments = $comments->map(function ($s) {
@@ -81,7 +88,7 @@ class CommentControllerTest extends TestCase {
         $listIds = array_column($comments, 'id');
         array_multisort($listIds, SORT_DESC, $comments);
 
-        $response = $this->call('GET', 'api/comments?search='.$comments[0]['name']);
+        $response = $this->actingAs($user)->call('GET', 'api/comments?search='.$comments[0]['name']);
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
@@ -100,6 +107,8 @@ class CommentControllerTest extends TestCase {
     /** @test */
     public function can_get_paginated_comments_with_order_by()
     {
+        $user = factory(User::class)->create();
+
         $comments = factory(comment::class, 5)->state('post')->create();
 
         $comments = $comments->map(function ($s) {
@@ -114,7 +123,7 @@ class CommentControllerTest extends TestCase {
         $listName = array_column($comments, 'name');
         array_multisort($listName, SORT_DESC, $comments);
 
-        $response = $this->call('GET', 'api/comments?order_by='.$order_by);
+        $response = $this->actingAs($user)->call('GET', 'api/comments?order_by='.$order_by);
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
@@ -133,12 +142,14 @@ class CommentControllerTest extends TestCase {
 
     /** @test */
     public function can_get_comment() {
+        $user = factory(User::class)->create();
+
         $comment = factory(Comment::class)->state('post')->create()->toArray();
 
         unset($comment['updated_at']);
         unset($comment['created_at']);
 
-        $response = $this->call('GET', 'api/comments/'.$comment['id']);
+        $response = $this->actingAs($user)->call('GET', 'api/comments/'.$comment['id']);
 
         $response->assertStatus(200);
         $response->assertJson([
@@ -148,12 +159,9 @@ class CommentControllerTest extends TestCase {
 
     /** @test */
     public function should_not_get_undefined_comment() {
-        // $comment = factory(Comment::class)->state('post')->create()->toArray();
+        $user = factory(User::class)->create();
 
-        // unset($comment['updated_at']);
-        // unset($comment['created_at']);
-
-        $response = $this->call('GET', 'api/comments/2');
+        $response = $this->actingAs($user)->call('GET', 'api/comments/2');
 
         $response->assertStatus(400);
         $response->assertJson([
@@ -163,9 +171,11 @@ class CommentControllerTest extends TestCase {
 
     /** @test */
     public function can_create_comment() {
+        $user = factory(User::class)->create();
+
         $data = factory(Comment::class)->state('post')->make()->toArray();
 
-        $response = $this->json('POST', 'api/comments', $data);
+        $response = $this->actingAs($user)->json('POST', 'api/comments', $data);
 
         $response->assertStatus(200);
         
@@ -176,9 +186,11 @@ class CommentControllerTest extends TestCase {
 
     /** @test */
     public function should_not_create_comment_with_invalid_email() {
+        $user = factory(User::class)->create();
+
         $data = factory(Comment::class)->state('post')->make()->toArray();
         $data['email'] = "Invalid email data"; 
-        $response = $this->json('POST', 'api/comments', $data);
+        $response = $this->actingAs($user)->json('POST', 'api/comments', $data);
 
         $response->assertStatus(422);
         
@@ -189,9 +201,11 @@ class CommentControllerTest extends TestCase {
 
     /** @test */
     public function should_not_create_comment_with_invalid_name() {
+        $user = factory(User::class)->create();
+
         $data = factory(Comment::class)->state('post')->make()->toArray();
         $data['name'] = "The name may only contain letters, numbers, dashes and underscores."; 
-        $response = $this->json('POST', 'api/comments', $data);
+        $response = $this->actingAs($user)->json('POST', 'api/comments', $data);
 
         $response->assertStatus(422);
         
@@ -202,9 +216,11 @@ class CommentControllerTest extends TestCase {
 
     /** @test */
     public function should_not_create_comment_with_empty_content() {
+        $user = factory(User::class)->create();
+
         $data = factory(Comment::class)->state('post')->make()->toArray();
         $data['content'] = ""; 
-        $response = $this->json('POST', 'api/comments', $data);
+        $response = $this->actingAs($user)->json('POST', 'api/comments', $data);
 
         $response->assertStatus(422);
         

@@ -32,6 +32,9 @@ class CommentController extends ApiController
                 ['except' => config('comment.auth_middleware.admin.except')]
             );
         }
+        else{
+            throw new Exception("Admin middleware configuration is required");
+        }
 
     }
 

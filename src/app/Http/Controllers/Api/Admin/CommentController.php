@@ -2,6 +2,7 @@
 
 namespace VCComponent\Laravel\Comment\Http\Controllers\Api\Admin;
 
+use Exception;
 use Illuminate\Http\Request;
 use VCComponent\Laravel\Comment\Actions\CommentCountAction;
 use VCComponent\Laravel\Comment\Entities\Comment;

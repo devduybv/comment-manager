@@ -12,7 +12,7 @@ class Comment extends Model
     use HasCommentTrait;
 
     const STATUS_PENDING = 0;
-    const STATUS_ACTIVE  = 1;
+    const STATUS_ACTIVE = 1;
 
     protected $fillable = [
         'commentable_id',
@@ -20,6 +20,7 @@ class Comment extends Model
         'email',
         'name',
         'content',
+        'parent_id',
     ];
 
     public function commentable()
@@ -35,5 +36,9 @@ class Comment extends Model
     public function product()
     {
         return $this->belongsTo(Product::class, 'commentable_id');
+    }
+    public function children()
+    {
+        return $this->hasMany(self::class, 'parent_id')->orderBy('id', 'desc');
     }
 }

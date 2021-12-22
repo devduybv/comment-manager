@@ -7,12 +7,14 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use VCComponent\Laravel\Comment\Entities\Comment;
 use VCComponent\Laravel\Comment\Test\TestCase;
 
-class CommentControllerTest extends TestCase {
+class CommentControllerTest extends TestCase
+{
 
     use RefreshDatabase;
 
     /** @test */
-    public function can_get_pagianted_comments() {
+    public function can_get_pagianted_comments()
+    {
         $user = factory(User::class)->create();
 
         $comments = factory(Comment::class, 5)->state('post')->create();
@@ -29,7 +31,7 @@ class CommentControllerTest extends TestCase {
 
         $response->assertStatus(200);
         $response->assertJson([
-            'data'=> $comments
+            'data' => $comments,
         ]);
         $response->assertJsonStructure([
             'data' => [],
@@ -42,7 +44,8 @@ class CommentControllerTest extends TestCase {
     }
 
     /** @test */
-    public function can_get_pagianted_comments_with_constraints() {
+    public function can_get_pagianted_comments_with_constraints()
+    {
         $user = factory(User::class)->create();
 
         $comments = factory(Comment::class, 5)->state('post')->create();
@@ -54,13 +57,13 @@ class CommentControllerTest extends TestCase {
             return $comment;
         })->toArray();
 
-        $constraints = '{"name":"'.$name_constraints.'", "email":"'.$email_constraints.'"}';
+        $constraints = '{"name":"' . $name_constraints . '", "email":"' . $email_constraints . '"}';
 
-        $response = $this->actingAs($user)->call('GET', 'api/comments?constraints='.$constraints);
+        $response = $this->actingAs($user)->call('GET', 'api/comments?constraints=' . $constraints);
 
         $response->assertStatus(200);
         $response->assertJson([
-            'data'=> [$comments[0]]
+            'data' => [$comments[0]],
         ]);
         $response->assertJsonStructure([
             'data' => [],
@@ -88,7 +91,7 @@ class CommentControllerTest extends TestCase {
         $listIds = array_column($comments, 'id');
         array_multisort($listIds, SORT_DESC, $comments);
 
-        $response = $this->actingAs($user)->call('GET', 'api/comments?search='.$comments[0]['name']);
+        $response = $this->actingAs($user)->call('GET', 'api/comments?search=' . $comments[0]['name']);
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
@@ -100,7 +103,7 @@ class CommentControllerTest extends TestCase {
             ],
         ]);
         $response->assertJson([
-            'data' => [$comments[0]]
+            'data' => [$comments[0]],
         ]);
     }
 
@@ -119,11 +122,10 @@ class CommentControllerTest extends TestCase {
 
         $order_by = '{"name":"desc"}';
 
-
         $listName = array_column($comments, 'name');
         array_multisort($listName, SORT_DESC, $comments);
 
-        $response = $this->actingAs($user)->call('GET', 'api/comments?order_by='.$order_by);
+        $response = $this->actingAs($user)->call('GET', 'api/comments?order_by=' . $order_by);
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
@@ -141,7 +143,8 @@ class CommentControllerTest extends TestCase {
     }
 
     /** @test */
-    public function can_get_comment() {
+    public function can_get_comment()
+    {
         $user = factory(User::class)->create();
 
         $comment = factory(Comment::class)->state('post')->create()->toArray();
@@ -149,28 +152,30 @@ class CommentControllerTest extends TestCase {
         unset($comment['updated_at']);
         unset($comment['created_at']);
 
-        $response = $this->actingAs($user)->call('GET', 'api/comments/'.$comment['id']);
+        $response = $this->actingAs($user)->call('GET', 'api/comments/' . $comment['id']);
 
         $response->assertStatus(200);
         $response->assertJson([
-            'data' => $comment
+            'data' => $comment,
         ]);
     }
 
     /** @test */
-    public function should_not_get_undefined_comment() {
+    public function should_not_get_undefined_comment()
+    {
         $user = factory(User::class)->create();
 
         $response = $this->actingAs($user)->call('GET', 'api/comments/2');
 
         $response->assertStatus(400);
         $response->assertJson([
-            'message' => "Comment not found"
+            'message' => "Comment not found",
         ]);
     }
 
     /** @test */
-    public function can_create_comment() {
+    public function can_create_comment()
+    {
         $user = factory(User::class)->create();
 
         $data = factory(Comment::class)->state('post')->make()->toArray();
@@ -178,54 +183,99 @@ class CommentControllerTest extends TestCase {
         $response = $this->actingAs($user)->json('POST', 'api/comments', $data);
 
         $response->assertStatus(200);
-        
+
         $response->assertJson([
-            'data' => $data
+            'data' => $data,
         ]);
     }
 
     /** @test */
-    public function should_not_create_comment_with_invalid_email() {
+    public function should_not_create_comment_with_invalid_email()
+    {
         $user = factory(User::class)->create();
 
         $data = factory(Comment::class)->state('post')->make()->toArray();
-        $data['email'] = "Invalid email data"; 
+        $data['email'] = "Invalid email data";
         $response = $this->actingAs($user)->json('POST', 'api/comments', $data);
 
         $response->assertStatus(422);
-        
+
         $response->assertJson([
-            "message" => "The given data was invalid."
+            "message" => "The given data was invalid.",
         ]);
     }
 
     /** @test */
-    public function should_not_create_comment_with_invalid_name() {
+    public function should_not_create_comment_with_invalid_name()
+    {
         $user = factory(User::class)->create();
 
         $data = factory(Comment::class)->state('post')->make()->toArray();
-        $data['name'] = "The name may only contain letters, numbers, dashes and underscores."; 
+        $data['name'] = "The name may only contain letters, numbers, dashes and underscores.";
         $response = $this->actingAs($user)->json('POST', 'api/comments', $data);
 
         $response->assertStatus(422);
-        
+
         $response->assertJson([
-            "message" => "The given data was invalid."
+            "message" => "The given data was invalid.",
         ]);
     }
 
     /** @test */
-    public function should_not_create_comment_with_empty_content() {
+    public function should_not_create_comment_with_empty_content()
+    {
         $user = factory(User::class)->create();
 
         $data = factory(Comment::class)->state('post')->make()->toArray();
-        $data['content'] = ""; 
+        $data['content'] = "";
         $response = $this->actingAs($user)->json('POST', 'api/comments', $data);
 
         $response->assertStatus(422);
-        
+
         $response->assertJson([
-            "message" => "The given data was invalid."
+            "message" => "The given data was invalid.",
         ]);
+    }
+    /** @test */
+    public function should_not_report_undefined_comment()
+    {
+        $this->assertDatabaseMissing('comments', [
+            'id' => 1,
+        ]);
+        $data = ['status' => 4];
+        $response = $this->json('PUT', '/api/comments/report/1', $data);
+        $response->assertStatus(400);
+        $response->assertJson([
+            'message' => "Comment not found",
+        ]);
+    }
+    /** @test */
+    public function should_not_report_status_required_comment()
+    {
+        $comment = factory(Comment::class)->state('post')->create()->toArray();
+        $data = ['status' => ''];
+        $response = $this->json('PUT', "/api/comments/report/" . $comment['id'], $data);
+        $response->assertStatus(422);
+        $response->assertJson([
+            'message' => "The given data was invalid.",
+        ]);
+    }
+    /** @test */
+    public function can_report_comment()
+    {
+        $comment = factory(Comment::class)->state('post')->create(['status' => 1])->toArray();
+        $data = ['status' => 4];
+        $response = $this->json('PUT', "/api/comments/report/" . $comment['id'], $data);
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+        ]);
+        $this->assertDatabaseMissing('comments', [
+            'status' => 1,
+        ]);
+        $this->assertDatabaseHas('comments', [
+            'status' => 4,
+        ]);
+
     }
 }

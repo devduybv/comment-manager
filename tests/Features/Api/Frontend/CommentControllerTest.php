@@ -12,6 +12,8 @@ class CommentControllerTest extends TestCase
 
     use RefreshDatabase;
 
+    const activeStatus = 1;
+    const reportStatus = 4;
     /** @test */
     public function can_get_pagianted_comments()
     {
@@ -240,7 +242,7 @@ class CommentControllerTest extends TestCase
     public function should_not_report_undefined_comment()
     {
         $this->assertDatabaseMissing('comments', [
-            'id' => 1,
+            'id' => CommentControllerTest::activeStatus,
         ]);
         $data = ['status' => 4];
         $response = $this->json('PUT', '/api/comments/report/1', $data);
@@ -264,17 +266,17 @@ class CommentControllerTest extends TestCase
     public function can_report_comment()
     {
         $comment = factory(Comment::class)->state('post')->create(['status' => 1])->toArray();
-        $data = ['status' => 4];
+        $data = ['status' => CommentControllerTest::reportStatus];
         $response = $this->json('PUT', "/api/comments/report/" . $comment['id'], $data);
         $response->assertStatus(200);
         $response->assertJson([
             'success' => true,
         ]);
         $this->assertDatabaseMissing('comments', [
-            'status' => 1,
+            'status' => CommentControllerTest::activeStatus,
         ]);
         $this->assertDatabaseHas('comments', [
-            'status' => 4,
+            'status' => CommentControllerTest::reportStatus,
         ]);
 
     }

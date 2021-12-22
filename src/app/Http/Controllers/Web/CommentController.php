@@ -20,14 +20,16 @@ class CommentController extends BaseController
     {
         $validator = Validator::make($request->all(), [
             'content' => 'required',
+            'email' => 'email',
+            'parent_id' => 'integer',
         ]);
 
         if ($validator->fails()) {
             return Redirect::back()->withErrors($validator);
         }
 
-        $username = !$request['user'] ? 'user' : $request['user'];
-        $parent_id = !$request['parent_id'] ? 0 : $request->input('parent_id');
+        $username = !$request->has('user') ? 'user' : $request['user'];
+        $parent_id = !$request->has('parent_id') ? 0 : $request->input('parent_id');
 
         Comment::create([
             'commentable_id' => $request->input('commentable_id'),
